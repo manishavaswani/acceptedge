@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AcceptEdge — a journal-targeted guided writing coach for academic papers: structured section editors with editor-grade prompts, cite-as-you-type references, and an acceptance-readiness checklist.">
+  <title>AcceptEdge — Journal-Targeted Writing Coach</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23a4543a'/><text x='3' y='12' font-size='11' font-family='Georgia' fill='%23faf6ef'>A</text></svg>">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <h1 class="site-title">AcceptEdge</h1>
+      <p class="site-tagline">A guided writing coach for academic papers. Pick a target journal (ABDC 2022 categorized) and paper type, then write section by section with editor-grade prompts, cite-as-you-type references, and an acceptance-readiness checklist. No account, no server — your manuscript lives in your browser's local storage. Citation lookups use the free Crossref API.</p>
+    </div>
+  </header>
+
+  <div class="setup-bar">
+    <div class="wrap setup-bar-inner">
+      <div class="setup-field">
+        <label for="journal-select" class="field-label">Target journal</label>
+        <select id="journal-select"></select>
+        <p id="journal-meta" class="hint"></p>
+      </div>
+      <div class="setup-field">
+        <label for="type-select" class="field-label">Paper type</label>
+        <select id="type-select"></select>
+        <p id="type-meta" class="hint"></p>
+      </div>
+      <div class="setup-field setup-title-field">
+        <label for="project-title" class="field-label">Working title</label>
+        <input type="text" id="project-title" placeholder="Untitled manuscript" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <nav class="tab-bar" role="tablist" aria-label="Tools">
+    <div class="wrap tab-bar-inner">
+      <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-write" id="tab-write" data-tab="write">Workspace</button>
+      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-readiness" id="tab-readiness" data-tab="readiness">Readiness</button>
+      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-export" id="tab-export" data-tab="export">Export &amp; Project</button>
+    </div>
+  </nav>
+
+  <main class="wrap">
+
+    <!-- ================= TAB 1: WORKSPACE ================= -->
+    <section class="tab-panel active" id="panel-write" role="tabpanel" aria-labelledby="tab-write">
+      <div class="workspace-grid">
+
+        <aside class="section-nav" aria-label="Sections">
+          <h3 class="nav-heading">Sections</h3>
+          <ul id="section-nav-list" class="section-nav-list"></ul>
+          <div class="total-progress">
+            <div class="progress-track"><div class="progress-fill" id="total-progress-fill"></div></div>
+            <span class="progress-label" id="total-progress-label">0 / 0 words</span>
+          </div>
+        </aside>
+
+        <div class="editor-pane">
+          <div class="editor-head">
+            <h2 id="editor-section-title">Introduction</h2>
+            <span class="word-count" id="editor-word-count">0 / ~0 words</span>
+          </div>
+          <p class="section-guidance" id="editor-guidance"></p>
+
+          <div class="prompt-panel" id="prompt-panel">
+            <h4 class="prompt-heading">Editor's prompts <span class="hint-inline">— tick off as you address each</span></h4>
+            <ul id="prompt-list" class="prompt-list"></ul>
+          </div>
+
+          <label for="section-editor" class="field-label">Section text</label>
+          <textarea id="section-editor" rows="18" spellcheck="true" placeholder="Write here. Cite like (Smith, 2020) or Smith &amp; Jones (2020) — citations are detected as you type and collected in the panel on the right."></textarea>
+          <p class="hint" id="editor-citation-hint"></p>
+        </div>
+
+        <aside class="cite-pane" aria-label="Citations">
+          <h3 class="nav-heading">Citations</h3>
+          <p class="hint">Detected as you type. Click one to find the paper on Crossref and add it to the reference list.</p>
+          <ul id="cite-list" class="cite-list"></ul>
+
+          <div id="resolve-panel" class="resolve-panel hidden">
+            <h4 class="resolve-heading" id="resolve-heading"></h4>
+            <label class="field-label" for="resolve-refine">Refine search (add title keywords)</label>
+            <div class="refine-row">
+              <input type="text" id="resolve-refine" placeholder="e.g. user acceptance technology" autocomplete="off" spellcheck="false">
+              <button id="resolve-again" class="btn small">Search</button>
+            </div>
+            <p class="hint" id="resolve-status">Searching Crossref…</p>
+            <ul id="resolve-results" class="resolve-results"></ul>
+            <div class="button-row">
+              <button id="resolve-skip" class="btn ghost small">Close (leave unresolved)</button>
+            </div>
+          </div>
+
+          <h3 class="nav-heading">Reference list <span id="ref-count" class="hint-inline"></span></h3>
+          <p class="hint" id="ref-style-note"></p>
+          <ol id="ref-list" class="ref-list"></ol>
+          <div class="button-row">
+            <button id="ref-export-txt" class="btn small">Download .txt</button>
+            <button id="ref-export-bib" class="btn small">Download .bib</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ================= TAB 2: READINESS ================= -->
+    <section class="tab-panel" id="panel-readiness" role="tabpanel" aria-labelledby="tab-readiness">
+      <h2>Acceptance readiness</h2>
+      <p class="panel-intro">A journal- and type-aware checklist built from the selected journal's documented expectations, plus automated checks on your draft. Checklist state is saved automatically.</p>
+
+      <h3>Automated checks on your draft</h3>
+      <ul id="auto-findings" class="finding-list"></ul>
+
+      <h3>Checklist</h3>
+      <div class="check-progress" aria-live="polite">
+        <div class="progress-track"><div class="progress-fill" id="readiness-progress-fill"></div></div>
+        <span class="progress-label" id="readiness-progress-label">0 / 0</span>
+      </div>
+      <div id="readiness-checklist" class="checklist-content"></div>
+
+      <hr class="divider">
+
+      <section class="ai-panel" aria-labelledby="ai-heading">
+        <h3 id="ai-heading">AI review <span class="badge unknown">optional — bring your own key</span></h3>
+        <p class="hint">Connect any OpenAI-compatible chat-completions endpoint to get structured editorial feedback. The endpoint, model, and key are stored <strong>only in this browser's localStorage</strong> and sent only to the endpoint you specify. AcceptEdge works fully without this — it is an optional extra, and no key is ever transmitted anywhere else.</p>
+        <div class="ai-fields">
+          <div class="ai-field">
+            <label class="field-label" for="ai-endpoint">API base URL</label>
+            <input type="text" id="ai-endpoint" placeholder="https://api.openai.com/v1" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="ai-field">
+            <label class="field-label" for="ai-model">Model</label>
+            <input type="text" id="ai-model" placeholder="gpt-4o-mini" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="ai-field">
+            <label class="field-label" for="ai-key">API key</label>
+            <input type="password" id="ai-key" placeholder="sk-…" autocomplete="off">
+          </div>
+        </div>
+        <div class="button-row">
+          <button id="ai-save" class="btn ghost">Save settings (this browser only)</button>
+          <button id="ai-run" class="btn primary">Review my draft</button>
+        </div>
+        <p class="hint" id="ai-status" aria-live="polite"></p>
+        <div id="ai-results" class="ai-results hidden"></div>
+      </section>
+    </section>
+
+    <!-- ================= TAB 3: EXPORT & PROJECT ================= -->
+    <section class="tab-panel" id="panel-export" role="tabpanel" aria-labelledby="tab-export">
+      <h2>Export &amp; project</h2>
+      <p class="panel-intro">Export the manuscript (with the alpha-sorted reference list appended) or the whole project. Everything is generated in your browser.</p>
+
+      <h3>Manuscript</h3>
+      <div class="button-row">
+        <button id="export-docx" class="btn primary">Download manuscript (.docx)</button>
+        <button id="export-md" class="btn">Download manuscript (.md)</button>
+      </div>
+      <p class="hint" id="export-status" aria-live="polite">The .docx is generated with docx.js (Times New Roman 12-pt, double-spaced, 1-inch margins, hanging-indent references) — a clean starting point for final journal formatting.</p>
+
+      <h3>Reference list</h3>
+      <div class="button-row">
+        <button id="export-refs-txt" class="btn">Download references (.txt)</button>
+        <button id="export-refs-bib" class="btn">Download references (.bib)</button>
+      </div>
+
+      <h3>Project</h3>
+      <p class="hint">Projects auto-save to this browser's localStorage. Export a .json backup to move between machines or browsers.</p>
+      <div class="button-row">
+        <button id="project-export" class="btn">Export project (.json)</button>
+        <label class="btn file-btn" for="project-import-input">Import project (.json)</label>
+        <input type="file" id="project-import-input" accept=".json" class="hidden">
+        <button id="project-new" class="btn ghost danger">New project (clears current)</button>
+      </div>
+      <p class="hint" id="project-status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>AcceptEdge runs entirely in your browser. Journal ranks follow the <a href="https://abdc.edu.au/abdc-journal-quality-list/" rel="noopener">ABDC 2022 Journal Quality List</a> (sources recorded in <code>js/data/journals.js</code>); citation resolution uses the free <a href="https://api.crossref.org/" rel="noopener">Crossref API</a>; reference formatting uses <a href="https://citation.js.org/" rel="noopener">citation.js</a> with official CSL styles. Journal norms are transcribed from official author guidelines — always verify against the journal's current guidelines before submitting.</p>
+    </div>
+  </footer>
+
+  <script src="js/data/journals.js"></script>
+  <script src="js/data/paperTypes.js"></script>
+  <script src="js/citations.js"></script>
+  <script src="js/readiness.js"></script>
+  <script src="js/exporter.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
